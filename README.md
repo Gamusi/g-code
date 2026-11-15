@@ -12,9 +12,9 @@ Personal collection of Antigravity agent skills for planning, writing, reviewing
 - [polish](skills/polish/SKILL.md): Refactor existing code one test-gated step at a time using Fowler patterns and clean-code rules.
 
 ### Third-Party Skills
-- [clean-code](skills/clean-code/SKILL.md): Language-agnostic readability, naming, function design, and testing guidelines.
-- [code-refactoring-skill](skills/code-refactoring-skill/SKILL.md): Safe, behavior-preserving refactoring catalog and code-smell checks.
-- [avoid-ai-writing](skills/avoid-ai-writing/SKILL.md): Audit and edit prose to remove common AI writing patterns.
+- [clean-code](skills/clean-code/SKILL.md): Language-agnostic readability, naming, function design, and testing guidelines (from [Amartuvshins0404/clean-code-skills](https://github.com/Amartuvshins0404/clean-code-skills)).
+- [code-refactoring-skill](skills/code-refactoring-skill/SKILL.md): Safe, behavior-preserving refactoring catalog and code-smell checks (by Muhiminul Islam Osim, [MuhiminOsim/code-refactoring-skill](https://github.com/MuhiminOsim/code-refactoring-skill)).
+- [avoid-ai-writing](skills/avoid-ai-writing/SKILL.md): Audit and edit prose to remove common AI writing patterns (by Conor Bronsdon, [conorbronsdon/avoid-ai-writing](https://github.com/conorbronsdon/avoid-ai-writing)).
 
 ## Setup on a New Machine
 
@@ -50,3 +50,12 @@ git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.gemini\conf
 mkdir -p ~/.gemini/config/plugins
 git clone https://github.com/obra/superpowers.git ~/.gemini/config/plugins/superpowers
 ```
+
+## Attribution
+
+Third-party skills included or referenced in this repository remain the work of their respective authors and are distributed under the MIT License:
+
+- **clean-code**: [Amartuvshins0404/clean-code-skills](https://github.com/Amartuvshins0404/clean-code-skills) (MIT License)
+- **code-refactoring-skill**: Muhiminul Islam Osim — [MuhiminOsim/code-refactoring-skill](https://github.com/MuhiminOsim/code-refactoring-skill) (MIT License, see [LICENSE](skills/code-refactoring-skill/LICENSE))
+- **avoid-ai-writing**: Conor Bronsdon — [conorbronsdon/avoid-ai-writing](https://github.com/conorbronsdon/avoid-ai-writing) (MIT License, see [LICENSE](skills/avoid-ai-writing/LICENSE))
+- **superpowers** *(referenced externally)*: Jesse Vincent — [obra/superpowers](https://github.com/obra/superpowers) (MIT License)
