@@ -1,16 +1,17 @@
 ---
 name: code-audit
 description: >-
-  Run a comprehensive, read-only code quality, smell, and cleanliness audit on a
-  file, diff, or project. Combines Clean Code principles, Fowler code-smell
-  detection, and code-review rigor into one structured report with prioritized
-  refactoring recommendations. Use when asked to "audit this code", "review how
-  clean this is", "check for code smells", or invoked via /code-audit.
+  Run a comprehensive, read-only code correctness, data-integrity, smell, and
+  cleanliness audit on a file, diff, or project. Traces full state lifecycles,
+  separates confirmed bugs from plausible risks, and prioritizes functional
+  reliability above stylistic polish. Use when asked to "audit this code",
+  "review how clean this is", "check for code smells", or invoked via
+  /code-audit.
 ---
 
-# Code Audit — Hybrid Clean Code, Smell & Review Report
+# Code Audit — Correctness, Data Integrity, Smell & Cleanliness Report
 
-Perform a **read-only** audit of the target code (a file, folder, git diff, or repository) and produce a clear, prioritized report on **how clean it is** and **how to make it cleaner**.
+Perform a **read-only** audit of the target code (a file, folder, git diff, or repository) and produce a prioritized report covering **functional correctness**, **data integrity**, and **code cleanliness**.
 
 > **Important:** Do **not** modify any project files during `/code-audit` unless the user explicitly asks you to apply fixes afterward.
 
@@ -21,38 +22,51 @@ Before reviewing, read the relevant sections of the installed companion skills i
 - **Code Smells & Refactoring Catalog:** `~/.gemini/config/skills/code-refactoring-skill/SKILL.md` (smell families: Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers, Architectural/Layer violations).
 - **Code Review Rigor:** Check correctness, edge cases, security, and test coverage (aligned with `requesting-code-review`).
 
-## Step 2: Inspect the Target Scope
+## Step 2: Trace the Full Lifecycle (Do Not Audit Slices in Isolation)
 
-1. Determine what the user wants audited:
-   - **Specific file(s) or folder:** Read the target files.
-   - **Recent changes / PR:** Run `git status` and `git diff` (or `git diff main...HEAD`) to inspect changed lines and surrounding context.
-   - **Whole project:** Map the directory structure first, then inspect entry points, core modules, and largest/most complex files.
-2. Check whether automated tests, linters, or typecheckers exist (e.g., `package.json`, `pyproject.toml`, `Cargo.toml`) so you know what safety net is in place before recommending refactors.
+1. **Read all state-touching paths** for the target scope—never rate a file after reading only one section:
+   - **Specific file(s):** Read initialization, state mutations, storage read/write/clear paths, timers/async handlers, UI rendering, and export/edit flows.
+   - **Recent changes / PR:** Run `git status` and `git diff` (or `git diff main...HEAD`), plus inspect callers and downstream consumers of changed functions.
+   - **Whole project:** Map the directory structure, then inspect entry points, core modules, state stores, and largest/most complex files.
+2. **Trace end-to-end workflows** relevant to the code (e.g., `create → run → pause/overrun → switch → stop → edit → delete → reload → export`).
+3. Check whether automated tests, linters, or typecheckers exist so you know what safety net is in place.
 
-## Step 3: Analyze Across 4 Lenses
+## Step 3: Analyze Across 4 Prioritized Lenses
 
-1. **Correctness, Edge Cases & Security:** Bugs, race conditions, swallowed errors, unvalidated inputs, hardcoded secrets, resource leaks.
-2. **Clean Code & Readability:** Vague names, oversized functions, deep nesting, mixed abstraction levels, magic numbers, dead code, missing/misleading comments.
+Rank **Correctness & Data Integrity** strictly above **Maintainability & Polish**:
+
+1. **Correctness & Data Integrity (Highest Priority):**
+   - **Linked-data invariants:** If an item is edited, reordered, or deleted, do parallel arrays, totals, or historical records (`record`, `events`, `stats`) stay consistent?
+   - **Time & async ordering:** Do foreground timers (`setInterval`) and reload recovery (`Date.now()`) agree? Can unawaited writes, clears, or dual-storage fallbacks (`IndexedDB` vs `localStorage`) race or load stale data?
+   - **Failure feedback & math edge cases:** Do failed saves/loads notify the user honestly instead of showing false success? Can overruns, negative values, or empty inputs corrupt downstream totals or displays?
+   - **Security & leaks:** Unvalidated inputs, XSS (`innerHTML` without escaping), hardcoded secrets, resource leaks.
+2. **Tests & Verification Coverage:** Missing tests for critical state transitions, silent catches, hard-to-test side effects.
 3. **Code Smells & Architecture:** God classes/functions, tight coupling, duplicate logic, feature envy, shotgun surgery, leaky boundaries.
-4. **Tests & Maintainability:** Missing tests for critical paths, brittle mocks, hard-to-test side effects.
+4. **Clean Code, Accessibility & Polish:** Vague names, oversized functions, deep nesting, stale `aria-label`/keyboard states on dynamic controls, inline styles, cosmetic cleanup.
 
 ## Step 4: Output the Audit Report
 
-Present findings concisely using this structure:
+### Rules for Evidence & Severity
+- **Correctness beats style:** Any data-corruption, silent-save-failure, or wrong-calculation bug is at least `High` (or `Critical`) and **must** rank ahead of duplication, caching micro-optimizations, or CSS cleanup. A file with unresolved `High`/`Critical` correctness or data-integrity bugs cannot be rated `Clean` or `Good`.
+- **Confirmed vs. Plausible:** Cite exact `file:line` code for confirmed bugs. Label unexecuted concurrency/race conditions as **Plausible Risk (untested at runtime)** rather than claiming they definitely occurred.
+- **No over-generalized strengths:** Never claim "zero external dependencies", "100% self-contained", or "accessible controls" unless you verified every asset link (`<img>`, `<script>`, CSS) and dynamic state change (`aria-label` updates).
+- **Check fix side effects:** Ensure every proposed fix addresses the root invariant—never suggest a display-only clamp that leaves underlying totals or timelines inconsistent.
 
-### 1. Cleanliness Summary
-- **Rating:** `Clean` / `Good (Minor Cleanup)` / `Needs Refactoring` / `High Technical Debt`
-- **Top 3 Strengths:** What is already working well.
-- **Top 3 Priorities:** The highest-impact improvements.
+### Report Structure
 
-### 2. Findings (Grouped by Severity)
+#### 1. Audit Summary
+- **Cleanliness & Reliability Rating:** `Clean & Reliable` / `Good (Minor Cleanup)` / `Needs Fixes (Correctness/Integrity Risks)` / `High Technical Debt`
+- **Top 3 Verified Strengths:** Specific, evidence-backed positives.
+- **Top 3 Priorities:** Ranked strictly by impact (data integrity & correctness first).
+
+#### 2. Findings (Grouped by Severity: `Critical` → `High` → `Medium` → `Low`)
 For each finding, include:
-- **Severity:** `Critical` (bug/security) | `High` (major smell/maintainability) | `Medium` (clean-code) | `Low` (polish)
+- **Severity & Type:** e.g., `High — Data Integrity (Confirmed)` or `Medium — Async Ordering (Plausible Risk)`
 - **Location:** Exact `file_path:line_number`
-- **Issue & Smell:** What is wrong and why it matters.
-- **How to Fix:** Concrete, minimal recommendation (e.g., *"Extract `validateOrder()` and use early returns"*).
+- **Issue & Impact:** What goes wrong, which workflow triggers it, and why it matters.
+- **How to Fix:** Concrete, root-cause recommendation that preserves invariants.
 
-### 3. Suggested Refactoring Plan
-A short, ordered list of safe, incremental steps (e.g., *Step 1: Add characterization tests → Step 2: Extract helper → Step 3: Simplify conditionals*).
+#### 3. Suggested Fix & Refactoring Plan
+An ordered list starting with **correctness & data-integrity fixes**, followed by **tests**, and finally **structural/clean-code refactors**.
 
-End by asking if the user wants you to apply any of the recommended steps using the `refactor` (`code-refactoring-skill`) workflow.
+End by asking if the user wants you to apply the fixes using `/polish` or `refactor`.
