@@ -34,4 +34,19 @@ mkdir -p ~/.gemini/config/skills
 cp -r ./g-code/skills/* ~/.gemini/config/skills/
 ```
 
-Some hybrid skills (`blueprint`, `forge`, `polish`, `code-audit`) also reference the **Superpowers** plugin. Install **Superpowers** from the Antigravity Marketplace if it is not already enabled on the new machine.
+Some hybrid skills (`blueprint`, `forge`, `polish`, `code-audit`) also reference the **Superpowers** plugin. On a new machine, install **Superpowers** using either option:
+
+1. **Antigravity Marketplace:** Search for **Superpowers** in the Marketplace and install it.
+2. **GitHub repository:** Clone `obra/superpowers` directly into your global plugins folder:
+
+```powershell
+# Windows (PowerShell)
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.gemini\config\plugins" | Out-Null
+git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.gemini\config\plugins\superpowers"
+```
+
+```bash
+# macOS / Linux
+mkdir -p ~/.gemini/config/plugins
+git clone https://github.com/obra/superpowers.git ~/.gemini/config/plugins/superpowers
+```
