@@ -48,8 +48,11 @@ Rank **Correctness & Data Integrity** strictly above **Maintainability & Polish*
 
 ### Rules for Evidence & Severity
 - **Correctness beats style:** Any data-corruption, silent-save-failure, or wrong-calculation bug is at least `High` (or `Critical`) and **must** rank ahead of duplication, caching micro-optimizations, or CSS cleanup. A file with unresolved `High`/`Critical` correctness or data-integrity bugs cannot be rated `Clean` or `Good`.
-- **Confirmed vs. Plausible:** Cite exact `file:line` code for confirmed bugs. Label unexecuted concurrency/race conditions as **Plausible Risk (untested at runtime)** rather than claiming they definitely occurred.
-- **No over-generalized strengths:** Never claim "zero external dependencies", "100% self-contained", or "accessible controls" unless you verified every asset link (`<img>`, `<script>`, CSS) and dynamic state change (`aria-label` updates).
+- **Verify negative claims across the full scope:** Never assert that error handling, validation, or a guard is "missing" unless you have read the entire enclosing function or block through its closing boundary.
+- **Confirmed vs. Plausible & Preconditions:** Cite exact `file:line` code for confirmed bugs, and explicitly state the precondition required for any conditional bug to trigger. Label unexecuted concurrency/race conditions as **Plausible Risk (untested at runtime)** rather than claiming they definitely occurred.
+- **Calibrate severity by actual impact:** Separate **actual data loss or corruption** from **UI, counter, or telemetry drift**, and separate **project-convention or lint deviations** from **proven runtime or accessibility failures**.
+- **Separate intentional trade-offs from accidental complexity:** Check project constraints (`README`, `AGENTS.md`, deployment model) before flagging an architectural pattern as a smell; only flag structure or duplication when it creates concrete divergence or maintenance risk within those constraints.
+- **No over-generalized strengths:** Never claim "zero external dependencies", "100% self-contained", or "accessible controls" unless you verified every asset link and dynamic state change.
 - **Check fix side effects:** Ensure every proposed fix addresses the root invariant—never suggest a display-only clamp that leaves underlying totals or timelines inconsistent.
 
 ### Report Structure
@@ -69,4 +72,4 @@ For each finding, include:
 #### 3. Suggested Fix & Refactoring Plan
 An ordered list starting with **correctness & data-integrity fixes**, followed by **tests**, and finally **structural/clean-code refactors**.
 
-End by asking if the user wants you to apply the fixes using `/polish` or `refactor`.
+Keep the report purely evaluative—conclude once the findings and plan are presented without prompting to start follow-up edits unless the user asks.
